@@ -1,0 +1,40 @@
+# extend base image
+FROM centos:latest
+
+# update OS
+RUN yum -y update
+
+# accept region as build args or
+# use us-east-2 as default
+ARG REGION=us-east-2
+ENV REGION=$REGION
+
+# accept zone as build args or
+# use us-east-2a as default
+ARG ZONE=us-east-2a
+ENV ZONE=$ZONE
+
+# add scripts to context
+ADD essentials.sh /tools/essentials.sh
+ADD kubectl.sh /tools/kubectl.sh
+ADD awscli.sh /tools/awscli.sh
+ADD kops.sh /tools/kops.sh
+ADD commands.sh /tools/commands.sh
+
+# install toolings
+RUN bash /tools/essentials.sh
+RUN bash /tools/kubectl.sh
+RUN bash /tools/kops.sh
+RUN bash /tools/awscli.sh
+RUN bash /tools/commands.sh
+
+# include public rsa key that will be used for kube cluster
+# creation
+ADD k8s_rsa.pub /root/.ssh/id_rsa.pub
+
+# include aws credentials and config to home directory
+ADD awscredentials /root/.aws/credentials
+ADD awsconfig /root/.aws/config
+
+# run bash
+ENTRYPOINT [ "/bin/bash" ]
