@@ -7,3 +7,4 @@ yum install -y wget
 yum install -y jq
 yum install -y openssl
 yum install -y which
+yum install -y gettext

@@ -96,10 +96,11 @@ function destroy_kafka() {
 
 # apps deployment functions
 
-function deploy_kafka2twitter() {
-  kubectl apply -f /tools/kafka2twitter_deployment.yaml
+function create_twitter2kafka() {
+  envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml
+  kubectl apply -f /tools/twitter2kafka_deployment.yaml
 }
 
-function delete_kafka2twitter() {
-  kubectl delete -f /tools/kafka2twitter_deployment.yaml
+function destroy_twitter2kafka() {
+  kubectl delete -f /tools/twitter2kafka_deployment.yaml
 }
