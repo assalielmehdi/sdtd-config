@@ -1,19 +1,29 @@
-01)Buy a domain on AWS rute 53 and replace in commands.sh the
-"k8s-sdtd-ensimag.eu" string for your domain on this command:
-echo "export KOPS_CLUSTER_NAME=k8s-sdtd-ensimag.eu" >> /root/.bashrc
-02) Create a awscredentials under tools folder and  paste:
-[default]
-aws_access_key_id=(your access key)
-aws_secret_access_key=(your secret key)
+# Guildeline of usage
 
-03) to start the deployment on AWS do:
+1. Buy a domain on AWS Route53 and replace in commands.sh the `sdtd-k8s.assalielmehdi.com` by your domain on line #7.
 
-sudo systemctl start docker
-sudo docker build -t tools -f tools .
-docker run -it -v $(pwd):/tmp/tools tools
-create (and do destroy to destroy)
+2. Under tools folder, create a file named `awscredentials` containing:
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+   ```bash
+   [default]
+   aws_access_key_id=<aws_user_access_key_id>
+   aws_secret_access_key=<aws_user_secret_access_key>
+   ```
+
+3. To create and use tools container:
+
+   ```bash
+    # create the image for tools container
+    docker image build -t sdtd-tools .
+    # create the container with all tools
+    docker container run -d -t --name sdtd-tools-box sdtd-tools
+    # access the container from bash
+    docker container exec -i -t sdtd-tools-box bash
+   ```
+
+4. Commands to manage the cluster:
+
+<!-- kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 
 Then follow the steps of this medium to see the kubernetes dashboard (still have to automate this part):
-https://medium.com/@kanrangsan/creating-admin-user-to-access-kubernetes-dashboard-723d6c9764e4
+https://medium.com/@kanrangsan/creating-admin-user-to-access-kubernetes-dashboard-723d6c9764e4 -->
