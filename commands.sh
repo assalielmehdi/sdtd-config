@@ -6,9 +6,9 @@ echo "source /tools/commands.sh" >> /root/.bashrc
 
 # export variables that will be used for create and destroy functions
 
-echo "export KOPS_CLUSTER_NAME=sdtd-k8s.assalielmehdi.com" >> /root/.bashrc
+echo "export KOPS_CLUSTER_NAME=k8s.assalielmehdi.com" >> /root/.bashrc
 echo "export KOPS_HOSTED_ZONE_DNS=$KOPS_CLUSTER_NAME" >> /root/.bashrc
-echo "export KOPS_STATE_BUCKET_NAME=sdtd-k8s-config" >> /root/.bashrc
+echo "export KOPS_STATE_BUCKET_NAME=k8s.assalielmehdi.config" >> /root/.bashrc
 echo "export KOPS_STATE_STORE=s3://$KOPS_STATE_BUCKET_NAME" >> /root/.bashrc
 
 # variables used in this file to configure cluster
@@ -84,10 +84,16 @@ function update_helm_repo() {
 function create_kafka() {
   update_helm_repo
 
-  helm install confluentinc/cp-helm-charts --generate-name
-
-  export KAFKA_CLUSTER_NAME="$(helm list -q)"
-  export KAFKA_CLUSTER_ENTRY_POINT="$KAFKA_CLUSTER_NAME-cp-kafka-headless"
+  while true; do
+    helm install confluentinc/cp-helm-charts --generate-name 2>/dev/null
+    if [ $? -eq 0 ]; then
+      export KAFKA_CLUSTER_NAME="$(helm list -q)"
+      export KAFKA_CLUSTER_ENTRY_POINT="$KAFKA_CLUSTER_NAME-cp-kafka-headless"
+      break;
+    fi
+    echo "Waiting for cluster to setup..."
+    sleep 15
+  done
 }
 
 function destroy_kafka() {
@@ -103,4 +109,22 @@ function create_twitter2kafka() {
 
 function destroy_twitter2kafka() {
   kubectl delete -f /tools/twitter2kafka_deployment.yaml
+}
+
+# one push button functions
+
+function create() {
+  create_cluster
+
+  create_kafka
+
+  create_twitter2kafka
+}
+
+function destroy() {
+  destroy_twitter2kafka
+
+  destroy_kafka
+
+  destroy_cluster
 }

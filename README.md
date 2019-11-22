@@ -10,16 +10,7 @@
    aws_secret_access_key=<aws_user_secret_access_key>
    ```
 
-3. To create and use tools container:
-
-   ```bash
-    # create the image for tools container
-    docker image build -t sdtd-tools .
-    # create the container with all tools
-    docker container run -d -t --name sdtd-tools-box sdtd-tools
-    # access the container from bash
-    docker container exec -i -t sdtd-tools-box bash
-   ```
+3. To create and use toolbox:
 
 4. Commands to manage the cluster:
 
