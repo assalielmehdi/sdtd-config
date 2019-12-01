@@ -1,6 +1,10 @@
 # extend base image
 FROM centos:latest
 
+# include aws credentials and config to home directory
+ADD awscredentials /root/.aws/credentials
+ADD awsconfig /root/.aws/config
+
 # update OS
 RUN yum -y update
 
@@ -31,6 +35,3 @@ RUN bash /tools/essentials.sh \
 # include public rsa key that will be used w/ kops
 COPY k8s_rsa.pub /root/.ssh/id_rsa.pub
 
-# include aws credentials and config to home directory
-COPY awscredentials /root/.aws/credentials
-COPY awsconfig /root/.aws/config

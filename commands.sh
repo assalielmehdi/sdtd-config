@@ -6,10 +6,10 @@ echo "source /tools/commands.sh" >> /root/.bashrc
 
 # export variables that will be used for create and destroy functions
 
-echo "export KOPS_CLUSTER_NAME=k8s.assalielmehdi.com" >> /root/.bashrc
+echo "export KOPS_CLUSTER_NAME=assalielmehdi.com" >> /root/.bashrc
 echo "export KOPS_HOSTED_ZONE_DNS=$KOPS_CLUSTER_NAME" >> /root/.bashrc
 echo "export KOPS_STATE_BUCKET_NAME=k8s.assalielmehdi.config" >> /root/.bashrc
-echo "export KOPS_STATE_STORE=s3://$KOPS_STATE_BUCKET_NAME" >> /root/.bashrc
+echo "export KOPS_STATE_STORE=s3://k8s.assalielmehdi.config" >> /root/.bashrc
 
 # variables used in this file to configure cluster
 
@@ -61,6 +61,12 @@ function create_kops_cluster() {
     kops create secret --name ${KOPS_CLUSTER_NAME} sshpublickey admin -i ~/.ssh/id_rsa.pub
 
     kops update cluster --yes
+
+    until [ $(kops validate cluster 2> /dev/null| grep -e "is ready" | wc -l | xargs) -eq 1 ]; 
+    do
+      echo "Waiting for cluster to setup..."
+      sleep 15
+    done
 }
 
 function create_cluster() {
@@ -71,6 +77,25 @@ function create_cluster() {
 
 function destroy_cluster() {
 	kops delete cluster --yes
+}
+
+# flink cluster setup functions
+
+function create_flink() {
+  envsubst < /tools/flink-jobmanager-service.yaml > /tools/flink-jobmanager-service.yaml
+  envsubst < /tools/flink-jobmanager-deployment.yaml > /tools/flink-jobmanager-deployment.yaml
+  envsubst < /tools/flink-taskmanager-deployment.yaml > /tools/flink-taskmanager-deployment.yaml
+
+  kubectl create -f /tools/flink-jobmanager-service.yaml
+  kubectl create -f /tools/flink-jobmanager-deployment.yaml
+  kubectl create -f /tools/flink-taskmanager-deployment.yaml
+}
+
+
+function destroy_flink() {
+  kubectl delete -f /tools/flink-jobmanager-deployment.yaml
+  kubectl delete -f /tools/flink-taskmanager-deployment.yaml
+  kubectl delete -f /tools/flink-jobmanager-service.yaml
 }
 
 # kafka cluster setup functions
@@ -150,10 +175,14 @@ function create() {
   create_kafka
 
   create_twitter2kafka 
+
+  create_flink
 }
 
 function destroy() {
   destroy_twitter2kafka
+
+  destroy_flink
 
   destroy_kafka
 
