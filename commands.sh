@@ -75,20 +75,19 @@ function destroy_cluster() {
 
 # kafka cluster setup functions
 
-function update_helm_repo() {
+function add_kafka_helm_repo() {
   helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
 
   helm repo update
 }
 
 function create_kafka() {
-  update_helm_repo
+  add_kafka_helm_repo
 
   while true; do
-    helm install confluentinc/cp-helm-charts --generate-name 2>/dev/null
+    helm install kafka confluentinc/cp-helm-charts --generate-name 2>/dev/null
     if [ $? -eq 0 ]; then
-      export KAFKA_CLUSTER_NAME="$(helm list -q)"
-      export KAFKA_CLUSTER_ENTRY_POINT="$KAFKA_CLUSTER_NAME-cp-kafka-headless"
+      export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
       break;
     fi
     echo "Waiting for cluster to setup..."
@@ -97,7 +96,7 @@ function create_kafka() {
 }
 
 function destroy_kafka() {
-  helm delete $KAFKA_CLUSTER_NAME
+  helm uninstall kafka
 }
 
 # apps deployment functions
@@ -111,20 +110,54 @@ function destroy_twitter2kafka() {
   kubectl delete -f /tools/twitter2kafka_deployment.yaml
 }
 
+# cassandra deployment functions
+
+function create_storage_ebs() {
+  kubectl apply -f /tools/create_storage_ebs.yaml
+}
+
+function destroy_storage_ebs() {
+  kubectl delete -f /tools/create_storage_ebs.yaml
+}
+
+function add_cassandra_helm_repo() {
+  helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+
+  helm repo update
+}
+
+function create_cassandra() {
+  create_storage_ebs
+
+  add_cassandra_helm_repo
+
+  helm install cassandra incubator/cassandra
+}
+
+function destroy_cassandra() {
+  destroy_storage_ebs
+
+  helm uninstall cassandra
+}
+
 # one push button functions
 
 function create() {
   create_cluster
 
+  create_cassandra
+
   create_kafka
 
-  create_twitter2kafka
+  create_twitter2kafka 
 }
 
 function destroy() {
   destroy_twitter2kafka
 
   destroy_kafka
+
+  destroy_cassandra
 
   destroy_cluster
 }
