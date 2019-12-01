@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka2db
+  namespace: default
+spec:
+  containers:
+    - name: kafka2db
+      image: cvrnogueira/kafka2db:1.1
+      command:
+        - sh
+        - /opt/flink-upload.sh

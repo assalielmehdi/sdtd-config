@@ -25,21 +25,19 @@ MASTER_VOLUME_SIZE=30
 # AWS cluster setup functions
 
 function create_kops_bucket() {
-	aws s3api create-bucket \
+  aws s3api create-bucket \
     --region $REGION \
     --bucket $KOPS_STATE_BUCKET_NAME \
     --create-bucket-configuration LocationConstraint=$REGION
 
-	aws s3api put-bucket-versioning \
+  aws s3api put-bucket-versioning \
     --bucket $KOPS_STATE_BUCKET_NAME \
     --versioning-configuration Status=Enabled
-
-	export KOPS_STATE_STORE="s3://$KOPS_STATE_BUCKET_NAME"
 }
 
 function create_kops_cluster() {
-	kops create cluster \
-		--dns-zone=${KOPS_HOSTED_ZONE_DNS} \
+  kops create cluster \
+    --dns-zone=${KOPS_HOSTED_ZONE_DNS} \
     --zones=${ZONE} \
     --master-size=${MASTER_SIZE} \
     --master-volume-size=${MASTER_VOLUME_SIZE} \
@@ -61,22 +59,16 @@ function create_kops_cluster() {
     kops create secret --name ${KOPS_CLUSTER_NAME} sshpublickey admin -i ~/.ssh/id_rsa.pub
 
     kops update cluster --yes
-
-    until [ $(kops validate cluster 2> /dev/null| grep -e "is ready" | wc -l | xargs) -eq 1 ]; 
-    do
-      echo "Waiting for cluster to setup..."
-      sleep 15
-    done
 }
 
 function create_cluster() {
-	create_kops_bucket
+  create_kops_bucket
 
-	create_kops_cluster
+  create_kops_cluster
 }
 
 function destroy_cluster() {
-	kops delete cluster --yes
+  kops delete cluster --yes
 }
 
 # flink cluster setup functions
@@ -90,7 +82,6 @@ function create_flink() {
   kubectl create -f /tools/flink-jobmanager-deployment.yaml
   kubectl create -f /tools/flink-taskmanager-deployment.yaml
 }
-
 
 function destroy_flink() {
   kubectl delete -f /tools/flink-jobmanager-deployment.yaml
@@ -128,11 +119,19 @@ function destroy_kafka() {
 
 function create_twitter2kafka() {
   envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml
-  kubectl apply -f /tools/twitter2kafka_deployment.yaml
+  kubectl apply -f /tools/twitter2kafka-deployment.yaml
 }
 
 function destroy_twitter2kafka() {
-  kubectl delete -f /tools/twitter2kafka_deployment.yaml
+  kubectl delete -f /tools/twitter2kafka-deployment.yaml
+}
+
+function create_kafka2db() {
+  kubeclt apply -f /tools/kafka2db-deployment.yaml
+}
+
+function destroy_kafka2db() {
+  kubectl delete -f /tools/kafka2db-deployment.yaml
 }
 
 # cassandra deployment functions
@@ -174,12 +173,16 @@ function create() {
 
   create_kafka
 
-  create_twitter2kafka 
+  create_twitter2kafka
 
   create_flink
+
+  create_kafka2db
 }
 
 function destroy() {
+  destroy_kafka2db
+  
   destroy_twitter2kafka
 
   destroy_flink

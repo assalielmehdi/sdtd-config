@@ -34,4 +34,3 @@ RUN bash /tools/essentials.sh \
 
 # include public rsa key that will be used w/ kops
 COPY k8s_rsa.pub /root/.ssh/id_rsa.pub
-

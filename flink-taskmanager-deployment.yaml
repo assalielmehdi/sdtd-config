@@ -25,3 +25,7 @@ spec:
         env:
         - name: JOB_MANAGER_RPC_ADDRESS
           value: flink-jobmanager
+        - name: KAFKA_CLUSTER_ENTRY_POINT
+          value: ${KAFKA_CLUSTER_ENTRY_POINT}
+        - name: CASSANDRA_CLUSTER_ENTRY_POINT
+          value: "cassandra"
