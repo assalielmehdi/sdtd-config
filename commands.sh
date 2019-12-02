@@ -128,7 +128,7 @@ function destroy_twitter2kafka() {
 }
 
 function create_kafka2db() {
-  kubeclt apply -f /tools/kafka2db_deployment.yaml
+  kubectl apply -f /tools/kafka2db_deployment.yaml
 }
 
 function destroy_kafka2db() {
