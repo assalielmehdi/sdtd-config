@@ -74,19 +74,19 @@ function destroy_cluster() {
 # flink cluster setup functions
 
 function create_flink() {
-  envsubst < /tools/flink-jobmanager-service.yaml > /tools/flink-jobmanager-service.yaml
-  envsubst < /tools/flink-jobmanager-deployment.yaml > /tools/flink-jobmanager-deployment.yaml
-  envsubst < /tools/flink-taskmanager-deployment.yaml > /tools/flink-taskmanager-deployment.yaml
+  envsubst < /tools/flink_jobmanager_service.yaml > /tools/flink_jobmanager_service.yaml
+  envsubst < /tools/flink_jobmanager_deployment.yaml > /tools/flink_jobmanager_deployment.yaml
+  envsubst < /tools/flink_taskmanager_deployment.yaml > /tools/flink_taskmanager_deployment.yaml
 
-  kubectl create -f /tools/flink-jobmanager-service.yaml
-  kubectl create -f /tools/flink-jobmanager-deployment.yaml
-  kubectl create -f /tools/flink-taskmanager-deployment.yaml
+  kubectl create -f /tools/flink_jobmanager_service.yaml
+  kubectl create -f /tools/flink_jobmanager_deployment.yaml
+  kubectl create -f /tools/flink_taskmanager_deployment.yaml
 }
 
 function destroy_flink() {
-  kubectl delete -f /tools/flink-jobmanager-deployment.yaml
-  kubectl delete -f /tools/flink-taskmanager-deployment.yaml
-  kubectl delete -f /tools/flink-jobmanager-service.yaml
+  kubectl delete -f /tools/flink_jobmanager_deployment.yaml
+  kubectl delete -f /tools/flink_taskmanager_deployment.yaml
+  kubectl delete -f /tools/flink_jobmanager_service.yaml
 }
 
 # kafka cluster setup functions
@@ -119,19 +119,19 @@ function destroy_kafka() {
 
 function create_twitter2kafka() {
   envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml
-  kubectl apply -f /tools/twitter2kafka-deployment.yaml
+  kubectl apply -f /tools/twitter2kafka_deployment.yaml
 }
 
 function destroy_twitter2kafka() {
-  kubectl delete -f /tools/twitter2kafka-deployment.yaml
+  kubectl delete -f /tools/twitter2kafka_deployment.yaml
 }
 
 function create_kafka2db() {
-  kubeclt apply -f /tools/kafka2db-deployment.yaml
+  kubeclt apply -f /tools/kafka2db_deployment.yaml
 }
 
 function destroy_kafka2db() {
-  kubectl delete -f /tools/kafka2db-deployment.yaml
+  kubectl delete -f /tools/kafka2db_deployment.yaml
 }
 
 # cassandra deployment functions

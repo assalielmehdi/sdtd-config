@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: twitter2kafka-container
-          image: cvrnogueira/twitter2kafka:1.0
+          image: cvrnogueira/twitter2kafka:1.1
           env:
             - name: KAFKA_CLUSTER_ENTRY_POINT
               value: ${KAFKA_CLUSTER_ENTRY_POINT}
