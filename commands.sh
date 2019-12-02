@@ -105,14 +105,14 @@ function add_kafka_helm_repo() {
 
 function create_kafka() {
   add_kafka_helm_repo
-  
+
   while true; do
     helm install kafka confluentinc/cp-helm-charts --generate-name 2>/dev/null
     if [ $? -eq 0 ]; then
       export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
       break;
     fi
-    echo "Waiting for cluster to setup..."
+    echo "Waiting for kafka cluster to setup..."
     sleep 15
   done
 }
@@ -162,7 +162,15 @@ function create_cassandra() {
 
   add_cassandra_helm_repo
 
-  helm install cassandra incubator/cassandra
+  while true; do
+    helm install cassandra incubator/cassandra
+    if [ $? -eq 0 ]; then
+      break;
+    fi
+    echo "Waiting for cassandra cluster to setup..."
+    sleep 15
+  done
+
 }
 
 function destroy_cassandra() {
