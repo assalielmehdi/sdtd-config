@@ -105,10 +105,16 @@ function add_kafka_helm_repo() {
 
 function create_kafka() {
   add_kafka_helm_repo
-
-  helm install kafka confluentinc/cp-helm-charts --generate-name 2>/dev/null
-
-  export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
+  
+  while true; do
+    helm install kafka confluentinc/cp-helm-charts --generate-name 2>/dev/null
+    if [ $? -eq 0 ]; then
+      export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
+      break;
+    fi
+    echo "Waiting for cluster to setup..."
+    sleep 15
+  done
 }
 
 function destroy_kafka() {

@@ -12,6 +12,7 @@ spec:
       labels:
         app: twitter2kafka
     spec:
+      restartPolicy: Always
       containers:
         - name: twitter2kafka-container
           image: cvrnogueira/twitter2kafka:1.0

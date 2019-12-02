@@ -4,6 +4,7 @@ metadata:
   name: kafka2db
   namespace: default
 spec:
+  restartPolicy: Always
   containers:
     - name: kafka2db
       image: cvrnogueira/kafka2db:1.1
