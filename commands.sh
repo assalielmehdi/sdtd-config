@@ -106,15 +106,9 @@ function add_kafka_helm_repo() {
 function create_kafka() {
   add_kafka_helm_repo
 
-  while true; do
-    helm install kafka confluentinc/cp-helm-charts --generate-name 2>/dev/null
-    if [ $? -eq 0 ]; then
-      export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
-      break;
-    fi
-    echo "Waiting for kafka cluster to setup..."
-    sleep 15
-  done
+  helm install kafka-cp-kafka-headless incubator/kafka --set replicas=1
+  while [[ $(kubectl get pods -l app.kubernetes.io/name=kafka -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting kafka cluster..." && sleep 15; done
+  export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
 }
 
 function destroy_kafka() {
@@ -162,15 +156,8 @@ function create_cassandra() {
 
   add_cassandra_helm_repo
 
-  while true; do
-    helm install cassandra incubator/cassandra
-    if [ $? -eq 0 ]; then
-      break;
-    fi
-    echo "Waiting for cassandra cluster to setup..."
-    sleep 15
-  done
-
+  helm install cassandra incubator/cassandra --set config.cluster_size=1
+  while [[ $(kubectl get pods -l app=cassandra -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting cassandra cluster..." && sleep 15; done
 }
 
 function destroy_cassandra() {
