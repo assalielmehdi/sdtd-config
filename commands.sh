@@ -59,6 +59,12 @@ function create_kops_cluster() {
     kops create secret --name ${KOPS_CLUSTER_NAME} sshpublickey admin -i ~/.ssh/id_rsa.pub
 
     kops update cluster --yes
+
+    until [ $(kops validate cluster 2> /dev/null| grep -e "is ready" | wc -l | xargs) -eq 1 ]; 
+    do
+      echo "Waiting for cluster to setup..."
+      sleep 15
+    done
 }
 
 function create_cluster() {
@@ -74,9 +80,9 @@ function destroy_cluster() {
 # flink cluster setup functions
 
 function create_flink() {
-  envsubst < /tools/flink_jobmanager_service.yaml > /tools/flink_jobmanager_service.yaml
-  envsubst < /tools/flink_jobmanager_deployment.yaml > /tools/flink_jobmanager_deployment.yaml
-  envsubst < /tools/flink_taskmanager_deployment.yaml > /tools/flink_taskmanager_deployment.yaml
+  envsubst < /tools/flink_jobmanager_service.yaml > /tools/flink_jobmanager_service.yaml.tmp && mv /tools/flink_jobmanager_service.yaml.tmp /tools/flink_jobmanager_service.yaml
+  envsubst < /tools/flink_jobmanager_deployment.yaml > /tools/flink_jobmanager_deployment.yaml.tmp && mv /tools/flink_jobmanager_deployment.yaml.tmp /tools/flink_jobmanager_deployment.yaml
+  envsubst < /tools/flink_taskmanager_deployment.yaml > /tools/flink_taskmanager_deployment.yaml.tmp && mv /tools/flink_taskmanager_deployment.yaml.tmp /tools/flink_taskmanager_deployment.yaml
 
   kubectl create -f /tools/flink_jobmanager_service.yaml
   kubectl create -f /tools/flink_jobmanager_deployment.yaml
@@ -112,7 +118,8 @@ function destroy_kafka() {
 # apps deployment functions
 
 function create_twitter2kafka() {
-  envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml
+  envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml.tmp && mv /tools/twitter2kafka_deployment.yaml.tmp /tools/twitter2kafka_deployment.yaml
+  
   kubectl apply -f /tools/twitter2kafka_deployment.yaml
 }
 
@@ -167,9 +174,9 @@ function create() {
 
   create_kafka
 
-  create_twitter2kafka
-
   create_flink
+
+  create_twitter2kafka
 
   create_kafka2db
 }
