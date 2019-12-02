@@ -66,6 +66,11 @@ function create_cluster() {
 
   create_kops_cluster
 }
+function create_grafana() {
+  export KUBE_NAMESPACE=infrastructure
+  make install
+  make upgrade
+}
 
 function destroy_cluster() {
   kops delete cluster --yes
