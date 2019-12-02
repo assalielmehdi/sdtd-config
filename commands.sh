@@ -178,6 +178,8 @@ function create() {
   create_flink
 
   create_kafka2db
+  
+  create_grafana
 }
 
 function destroy() {
@@ -192,4 +194,6 @@ function destroy() {
   destroy_cassandra
 
   destroy_cluster
+  
+  destroy_grafana
 }
