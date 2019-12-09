@@ -10,18 +10,18 @@
    aws_secret_access_key=<aws_user_secret_access_key>
    ```
 
-3. You can use `setup_toolbox.sh` script to create and use toolbox container as follows:
+3. You can use `setup.sh` script to create and use toolbox container as follows:
 
    To create and use toolbox container:
 
    ```bash
-   ./setup_toolbox.sh create
+   ./setup.sh create
    ```
 
    To use already created toolbox container:
 
    ```bash
-   ./setup_toolbox.sh
+   ./setup.sh
    ```
 
 4. Commands for managing the cluster:
