@@ -1,9 +1,8 @@
 # extend base image
 FROM centos:latest
 
-# include aws credentials and config to home directory
-ADD awscredentials /root/.aws/credentials
-ADD awsconfig /root/.aws/config
+# include aws credentials to home directory
+ADD ./secrets/awscredentials /root/.aws/credentials
 
 # update OS
 RUN yum -y update
@@ -19,18 +18,14 @@ ARG ZONE=eu-west-1a
 ENV ZONE=$ZONE
 
 # add scripts to context
-COPY ./*.sh /tools/
+COPY ./scripts/*.sh /tools/
 
-# add .yaml files to context
-COPY ./*.yaml /tools/
+# add .yaml manifests to context
+COPY ./manifests/*/*.yaml /tools/
 
 # install toolings
-RUN bash /tools/essentials.sh \
-  && bash /tools/kubectl.sh \
-  && bash /tools/kops.sh \
-  && bash /tools/awscli.sh \
-  && bash /tools/helm.sh \
+RUN bash /tools/install.sh \
   && bash /tools/commands.sh
 
 # include public rsa key that will be used w/ kops
-COPY k8s_rsa.pub /root/.ssh/id_rsa.pub
+COPY ./secrets/k8s_rsa.pub /root/.ssh/id_rsa.pub
