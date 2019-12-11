@@ -112,7 +112,7 @@ function create_kafka() {
 }
 
 function destroy_kafka() {
-  helm uninstall kafka
+  helm uninstall kafka-cp-kafka-headless
 }
 
 # apps deployment functions
@@ -166,6 +166,32 @@ function destroy_cassandra() {
   helm uninstall cassandra
 }
 
+# grafana setup functions
+
+function add_stable_repo() {
+  helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+}
+
+function create_grafana() {
+  add_stable_repo
+
+  helm install grafana stable/grafana --set service.type=LoadBalancer
+
+  export GRAFANA_ADMIN_PW=$(kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
+  
+  until kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2> /dev/null;
+  do 
+    echo "Waiting for Load Balancer to setup"
+    sleep 5
+  done
+
+  export GRAFANA_ENTRYPOINT=$(kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+}
+
+function destroy_grafana() {
+  helm uninstall grafana
+}
+
 # one push button functions
 
 function create() {
@@ -180,9 +206,13 @@ function create() {
   create_twitter2kafka
 
   create_kafka2db
+
+  create_grafana
 }
 
 function destroy() {
+  destroy_grafana
+
   destroy_kafka2db
   
   destroy_twitter2kafka
