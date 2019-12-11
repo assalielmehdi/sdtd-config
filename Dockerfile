@@ -21,7 +21,7 @@ ENV ZONE=$ZONE
 COPY ./scripts/*.sh /tools/
 
 # add .yaml manifests to context
-COPY ./manifests/*/*.yaml /tools/
+COPY ./manifests/*/*.yaml ./manifests/*/*.json /tools/
 
 # install toolings
 RUN bash /tools/install.sh \

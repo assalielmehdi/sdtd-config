@@ -1,0 +1,18 @@
+{
+  "Comment": "Updates CNAME for grafana entrypoint",
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "grafana.assalielmehdi.com",
+        "Type": "CNAME",
+        "TTL": 30,
+        "ResourceRecords": [
+          {
+            "Value": "${GRAFANA_ENTRYPOINT}"
+          }
+        ]
+      }
+    }
+  ]
+}

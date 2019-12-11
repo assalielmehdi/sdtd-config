@@ -10,6 +10,7 @@ echo "export KOPS_CLUSTER_NAME=assalielmehdi.com" >> /root/.bashrc
 echo "export KOPS_HOSTED_ZONE_DNS=$KOPS_CLUSTER_NAME" >> /root/.bashrc
 echo "export KOPS_STATE_BUCKET_NAME=k8s.assalielmehdi.config" >> /root/.bashrc
 echo "export KOPS_STATE_STORE=s3://k8s.assalielmehdi.config" >> /root/.bashrc
+echo "export HOSTED_ZONE_ID=Z1DENIO08UMGGK" >> /root/.bashrc
 
 # variables used in this file to configure cluster
 
@@ -178,14 +179,25 @@ function create_grafana() {
   helm install grafana stable/grafana --set service.type=LoadBalancer
 
   export GRAFANA_ADMIN_PW=$(kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
-  
-  until kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2> /dev/null;
-  do 
+
+  until [[ $(kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}') ]];
+  do
     echo "Waiting for Load Balancer to setup"
     sleep 5
   done
 
   export GRAFANA_ENTRYPOINT=$(kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+  envsubst < /tools/change_cname.json > /tools/change_cname.json.tmp && mv /tools/change_cname.json.tmp /tools/change_cname.json
+
+  aws route53 change-resource-record-sets \
+    --hosted-zone-id $HOSTED_ZONE_ID \
+    --change-batch file:///tools/change_cname.json
+
+  echo "In minutes you can access Grafana dashboard via:    http://grafana.assalielmehdi.com"
+  echo "Admin credentials:"
+  echo "    Username: admin"
+  echo "    Password: $GRAFANA_ADMIN_PW"
 }
 
 function destroy_grafana() {
