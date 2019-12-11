@@ -46,6 +46,8 @@
 
    - kafka2db app: `create_kafka2db` or `destroy_kafka2db`
 
+   - grafana dashboard: `create_grafana` or `destroy_grafana`
+
    You can also use the `one push` commands to deploy or destroy the whole stack.
 
    - To create and setup entire stack: `create`
