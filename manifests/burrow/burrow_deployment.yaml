@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: burrow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: burrow
+      component: api
+  template:
+    metadata:
+      labels:
+        app: burrow
+        component: api
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: burrow-container
+          image: cvrnogueira/burrow:1.2.2

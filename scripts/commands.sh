@@ -107,7 +107,7 @@ function add_kafka_helm_repo() {
 function create_kafka() {
   add_kafka_helm_repo
 
-  helm install kafka-cp-kafka-headless incubator/kafka --set replicas=1
+  helm install kafka-cp-kafka-headless incubator/kafka --set replicas=1 --set prometheus.jmx.enabled=true
   while [[ $(kubectl get pods -l app.kubernetes.io/name=kafka -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting kafka cluster..." && sleep 15; done
   export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
 }
@@ -117,6 +117,27 @@ function destroy_kafka() {
 }
 
 # apps deployment functions
+
+function create_metrics() {
+  envsubst < /tools/metrics_deployment.yaml > /tools/metrics_deployment.yaml.tmp && mv /tools/metrics_deployment.yaml.tmp /tools/metrics_deployment.yaml
+
+  kubectl apply -f /tools/metrics_deployment.yaml
+  kubectl apply -f /tools/metrics_service.yaml
+}
+
+function destroy_metrics() {
+  kubectl delete -f /tools/metrics_deployment.yaml
+}
+
+function create_burrow() {
+  kubectl apply -f /tools/burrow_deployment.yaml
+  kubectl apply -f /tools/burrow_service.yaml
+}
+
+function destroy_burrow() {
+  kubectl delete svc burrow-api
+  kubectl delete -f /tools/burrow_deployment.yaml
+}
 
 function create_twitter2kafka() {
   envsubst < /tools/twitter2kafka_deployment.yaml > /tools/twitter2kafka_deployment.yaml.tmp && mv /tools/twitter2kafka_deployment.yaml.tmp /tools/twitter2kafka_deployment.yaml
@@ -134,6 +155,16 @@ function create_kafka2db() {
 
 function destroy_kafka2db() {
   kubectl delete -f /tools/kafka2db_deployment.yaml
+}
+
+function create_weather2kafka() {
+  envsubst < /tools/weather2kafka_deployment.yaml > /tools/weather2kafka_deployment.yaml.tmp && mv /tools/weather2kafka_deployment.yaml.tmp /tools/weather2kafka_deployment.yaml
+
+  kubectl apply -f /tools/weather2kafka_deployment.yaml
+}
+
+function destroy_weather2kafka() {
+  kubectl delete -f /tools/weather2kafka_deployment.yaml
 }
 
 # cassandra deployment functions
@@ -159,6 +190,9 @@ function create_cassandra() {
 
   helm install cassandra incubator/cassandra --set config.cluster_size=1
   while [[ $(kubectl get pods -l app=cassandra -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting cassandra cluster..." && sleep 15; done
+
+  export CASSANDRA_CLUSTER_ENTRY_POINT="cassandra"
+  export CASSANDRA_HOSTS="cassandra"
 }
 
 function destroy_cassandra() {
@@ -176,7 +210,7 @@ function add_stable_repo() {
 function create_grafana() {
   add_stable_repo
 
-  helm install grafana stable/grafana --set service.type=LoadBalancer
+  helm install grafana stable/grafana -f /tools/dashboard_helm_values.yaml --set service.type=LoadBalancer --set plugins[0]="natel-plotly-panel" --set plugins[1]="simpod-json-datasource"
 
   export GRAFANA_ADMIN_PW=$(kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
 
@@ -187,7 +221,7 @@ function create_grafana() {
   done
 
   export GRAFANA_ENTRYPOINT=$(kubectl get svc --namespace default grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-
+  
   envsubst < /tools/change_cname.json > /tools/change_cname.json.tmp && mv /tools/change_cname.json.tmp /tools/change_cname.json
 
   aws route53 change-resource-record-sets \
@@ -219,11 +253,21 @@ function create() {
 
   create_kafka2db
 
+  create_weather2kafka
+
   create_grafana
+
+  create_burrow
+
+  create_metrics
 }
 
 function destroy() {
+  destroy_metrics
+
   destroy_grafana
+
+  destroy_weather2kafka
 
   destroy_kafka2db
   
@@ -236,4 +280,6 @@ function destroy() {
   destroy_cassandra
 
   destroy_cluster
+
+  destroy_burrow
 }

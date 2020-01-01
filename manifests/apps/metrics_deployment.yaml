@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics
+      component: api
+  template:
+    metadata:
+      labels:
+        app: metrics
+        component: api
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: metrics-container
+          image: cvrnogueira/metrics:1.1
+          env:
+          - name: CASSANDRA_HOSTS
+            value: ${CASSANDRA_HOSTS}
