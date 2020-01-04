@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-kafka-flink-cassandra
+spec:
+  containers:
+  - name: app-kafka-flink-cassandra
+    image: elhoutio/app-kfc:3.9
+    command:
+      - sh
+      - -c
+      - "exec tail -f /dev/null"
