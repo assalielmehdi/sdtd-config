@@ -7,7 +7,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: kafka2db
-      image: cvrnogueira/kafka2db:1.3
+      image: cvrnogueira/kafka2db:1.4
       command:
         - sh
         - /opt/flink-upload.sh

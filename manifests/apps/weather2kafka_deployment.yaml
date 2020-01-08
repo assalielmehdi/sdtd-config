@@ -15,7 +15,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: weather2kafka-container
-          image: cvrnogueira/weather2kafka:1.0
+          image: cvrnogueira/weather2kafka:1.1
           env:
             - name: KAFKA_CLUSTER_ENTRY_POINT
               value: ${KAFKA_CLUSTER_ENTRY_POINT}

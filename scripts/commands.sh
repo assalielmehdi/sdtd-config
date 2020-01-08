@@ -22,6 +22,9 @@ MASTER_SIZE=t2.xlarge
 MASTER_COUNT=1
 MASTER_VOLUME_SIZE=30
 
+CASSANDRA_CLUSTER_SIZE=2
+KAFKA_CLUSTER_SIZE=2
+
 
 # AWS cluster setup functions
 
@@ -107,6 +110,13 @@ function add_kafka_helm_repo() {
 function create_kafka() {
   add_kafka_helm_repo
 
+  export KAFKA_READY_STATUS=""
+
+  for (( c=1; c<=$KAFKA_CLUSTER_SIZE; c++ ))
+  do
+    export KAFKA_READY_STATUS="${KAFKA_READY_STATUS} True"
+  done
+
   helm install kafka-cp-kafka-headless incubator/kafka --set replicas=1 --set prometheus.jmx.enabled=true
   while [[ $(kubectl get pods -l app.kubernetes.io/name=kafka -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting kafka cluster..." && sleep 15; done
   export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
@@ -187,6 +197,13 @@ function create_cassandra() {
   create_storage_ebs
 
   add_cassandra_helm_repo
+
+  export CASSANDRA_READY_STATUS=""
+
+  for (( c=1; c<=$CASSANDRA_CLUSTER_SIZE; c++ ))
+  do
+    export CASSANDRA_READY_STATUS="${CASSANDRA_READY_STATUS} True"
+  done
 
   helm install cassandra incubator/cassandra --set config.cluster_size=1
   while [[ $(kubectl get pods -l app=cassandra -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting cassandra cluster..." && sleep 15; done

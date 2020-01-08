@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: twitter2kafka-deployment
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: twitter2kafka
@@ -15,7 +15,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: twitter2kafka-container
-          image: cvrnogueira/twitter2kafka:1.1
+          image: cvrnogueira/twitter2kafka:1.2
           env:
             - name: KAFKA_CLUSTER_ENTRY_POINT
               value: ${KAFKA_CLUSTER_ENTRY_POINT}
