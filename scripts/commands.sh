@@ -14,16 +14,16 @@ echo "export HOSTED_ZONE_ID=Z1DENIO08UMGGK" >> /root/.bashrc
 
 # variables used in this file to configure cluster
 
-NODE_SIZE=t2.large
+NODE_SIZE=t2.small
 NODE_COUNT=3
 NODE_VOLUME_SIZE=50
 
-MASTER_SIZE=t2.xlarge
+MASTER_SIZE=t2.small
 MASTER_COUNT=1
 MASTER_VOLUME_SIZE=30
 
 CASSANDRA_CLUSTER_SIZE=2
-KAFKA_CLUSTER_SIZE=2
+KAFKA_CLUSTER_SIZE=3
 
 
 # AWS cluster setup functions
@@ -117,8 +117,8 @@ function create_kafka() {
     export KAFKA_READY_STATUS="${KAFKA_READY_STATUS} True"
   done
 
-  helm install kafka-cp-kafka-headless incubator/kafka --set replicas=1 --set prometheus.jmx.enabled=true
-  while [[ $(kubectl get pods -l app.kubernetes.io/name=kafka -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting kafka cluster..." && sleep 15; done
+  helm install kafka-cp-kafka-headless incubator/kafka --set replicas=${KAFKA_CLUSTER_SIZE} --set prometheus.jmx.enabled=true
+  while [[ " $(kubectl get pods -l app.kubernetes.io/name=kafka -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}')" != "${KAFKA_READY_STATUS}" ]]; do echo "waiting kafka cluster..." && sleep 15; done
   export KAFKA_CLUSTER_ENTRY_POINT="kafka-cp-kafka-headless"
 }
 
@@ -282,6 +282,8 @@ function create() {
 function destroy() {
   destroy_metrics
 
+  destroy_burrow
+
   destroy_grafana
 
   destroy_weather2kafka
@@ -297,6 +299,4 @@ function destroy() {
   destroy_cassandra
 
   destroy_cluster
-
-  destroy_burrow
 }
