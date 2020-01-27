@@ -1,4 +1,4 @@
-# Guildeline of usage
+# Guideline of usage
 
 1. Buy a domain on AWS Route53 and replace in commands.sh the `sdtd-k8s.assalielmehdi.com` by your domain on line #7.
 

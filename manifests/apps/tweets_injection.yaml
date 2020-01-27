@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweets-injection-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweets-injection
+  template:
+    metadata:
+      labels:
+        app: tweets-injection
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: tweets-injection-container
+          image: assalielmehdi/tweets_injection:2.5
+          env:
+            - name: KAFKA_CLUSTER_ENTRY_POINT
+              value: kafka-cp-kafka-headless

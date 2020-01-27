@@ -10,6 +10,8 @@ yum install -y jq
 yum install -y openssl
 yum install -y which
 yum install -y gettext
+yum install -y curl
+yum install -y mysql
 
 #######################################
 

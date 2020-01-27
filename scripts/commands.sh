@@ -254,6 +254,25 @@ function destroy_grafana() {
   helm uninstall grafana
 }
 
+# charge injection functions
+
+function create_tweets_db() {
+  helm install mysql stable/mysql --set mysqlRootPassword=root && sleep 15
+
+  export MYSQL_POD=$(kubectl get pods | grep "mysql*" | awk '{print $1}')
+
+  kubectl exec ${MYSQL_POD} -- apt-get update
+  kubectl exec ${MYSQL_POD} -- apt-get install -y curl
+  kubectl exec ${MYSQL_POD} -- curl https://sdtd-tweets-archive.s3-eu-west-1.amazonaws.com/tweets.sql --output tweets.sql
+  kubectl exec ${MYSQL_POD} -- bash -c "mysql -u root -proot < tweets.sql"
+}
+
+function inject() {
+  kubectl apply -f /tools/tweets_injection.yaml
+
+  kubectl scale deployment tweets-injection-deployment --replicas=$1
+}
+
 # one push button functions
 
 function create() {
@@ -276,6 +295,8 @@ function create() {
   create_burrow
 
   create_metrics
+
+  create_tweets_db
 }
 
 function destroy() {
