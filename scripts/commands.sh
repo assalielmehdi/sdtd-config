@@ -257,7 +257,7 @@ function destroy_grafana() {
 # charge injection functions
 
 function create_tweets_db() {
-  helm install mysql stable/mysql --set mysqlRootPassword=root && sleep 15
+  helm install mysql stable/mysql --set mysqlRootPassword=root && sleep 90
 
   export MYSQL_POD=$(kubectl get pods | grep "mysql*" | awk '{print $1}')
 
