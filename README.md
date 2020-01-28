@@ -80,4 +80,4 @@
 
     The number of tweets injected is: `number_of_pods * 300.000`.
 
-    After injection you can see the number of tweets processed per second increasing significantly.
+    After injection you can see the number of tweets processed per second on `Grafana` increasing significantly.
