@@ -56,9 +56,9 @@
 
 5. Result visualization
 
-    After creating the cluster and deploying all component, the results can be seen in `Grafana`, and a dashboard is already configured for that.
+    After creating the cluster and deploying all components, the results can be seen in `Grafana`, and a dashboard is already configured for that.
 
-    `Grafana` can be accessed usin the link [grafana.assalielmehdi.com](grafana.assalielmehdi.com), using admin credentials given in the logs.
+    `Grafana` can be accessed via the link [grafana.assalielmehdi.com](grafana.assalielmehdi.com), using admin credentials given in the logs.
 
     A dashboard called `Metrics` contains the graphs illustrating the results of our app.
 
@@ -66,11 +66,11 @@
 
 6. Charge injection
 
-    All data processed in our app is from APIs (twitter and weather), and these APIs have rate limit.
+    All data processed in our app is from official APIs (twitter and weather), and these APIs have rate limits.
 
-    To measure the performance of the infrastructure, you can inject already stored data to the pipeline in order to stress the infrastructure.
+    To measure the performance of our infrastructure, you can inject already stored data to the pipeline in order to stress the infrastructure.
 
-    Each injection app (Kubernetes pod) is serving 300.000 tweets from a database to the entry point of our pipeline, and you an create as many injection apps as you want.
+    Each injection app (Kubernetes pod) is serving 300.000 tweets from a database to the entry point of our pipeline, and you can create as many injection apps as you want.
 
     In order to create injection apps:
 
