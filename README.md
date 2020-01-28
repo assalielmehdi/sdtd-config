@@ -26,7 +26,7 @@
 
 4. Commands for managing the cluster:
 
-   Once connected to the toolbox container, you cane create, manage and delete ressources.
+   Once connected to the toolbox container, you can create, manage and delete ressources.
 
    - To create and setup a ressouce you can use the command: `create_<ressource>`
 
@@ -53,3 +53,31 @@
    - To create and setup entire stack: `create`
 
    - To delete and cleanup entire stack: `destroy`
+
+5. Result visualization
+
+    After creating the cluster and deploying all component, the results can be seen in `Grafana`, and a dashboard is already configured for that.
+
+    `Grafana` can be accessed usin the link [grafana.assalielmehdi.com](grafana.assalielmehdi.com), using admin credentials given in the logs.
+
+    A dashboard called `Metrics` contains the graphs illustrating the results of our app.
+
+    > Note that `Grafana` may take a while to be ready, you just have to wait if the link given is not reachable.
+
+6. Charge injection
+
+    All data processed in our app is from APIs (twitter and weather), and these APIs have rate limit.
+
+    To measure the performance of the infrastructure, you can inject already stored data to the pipeline in order to stress the infrastructure.
+
+    Each injection app (Kubernetes pod) is serving 300.000 tweets from a database to the entry point of our pipeline, and you an create as many injection apps as you want.
+
+    In order to create injection apps:
+
+    ```bash
+      inject <number_of_pods>
+    ```
+
+    The number of tweets injected is: `number_of_pods * 300.000`.
+
+    After injection you can see the number of tweets processed per second increasing significantly.
